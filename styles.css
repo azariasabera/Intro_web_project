@@ -1,3 +1,9 @@
 #map {
-    height: 97vh;
+    border-radius: 20px;
+    background-color: #61dafb;
+}
+
+#chart {
+    border-radius: 20px;
+    background-color: #869a21;
 }
