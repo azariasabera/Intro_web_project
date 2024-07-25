@@ -52,8 +52,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 jsonQuery.query[0].selection.values = [regionParam];
                 buildChart(selectGraph.value, selectData.value);
             }
+            else console.log('Municipality not found')
         }
-        else console.log('NOPPP')
+        else console.log('NOTHING')
     }
 
     function filterOptions() {
