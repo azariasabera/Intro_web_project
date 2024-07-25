@@ -3,29 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Population Growth In Finnish Municipalities</title>
-    <script src="chartScript.js" defer></script>
+    <title>Document</title>
     <script src="https://unpkg.com/frappe-charts@latest"></script>
+    <link rel="stylesheet" href="testCSS.css">
+    <script src="chartScript.js"></script>
 </head>
 <body>
-    <form action="" method="post">
-        <label for="municipality">Enter municipality </label>
-        <input type="text" name="municipality" id="input-area">
-        <button 
-                id="submit-data" style="width: 80px; 
-                height: 20px; background-color: rgb(162, 248, 58); border-radius: 20px;">
-            Search
-        </button>
-    </form>
+    <!-- For filtering municipalities -->
+    <div class="dropdown">
+        <label for="dropdownInput">Choose region</label>
+        <input type="text" class="dropdown-input" id="dropdownInput" name="inputMunicipality" placeholder="Whole Country">
+        <div class="dropdown-list" id="dropdownList"></div>
+    </div>
+
+    <div>
+        <label for="selectData">Choose what to display</label>
+        <select id="selectData" name="selectData">
+            <option value="both">Both</option>
+            <option value="employment">Employment</option>
+            <option value="unemployment">Unemployment</option>
+        </select>       
+
+        <br>
+
+        <label for="selectGraph">Choose graph type</label>
+        <select id="selectGraph" name="selectGraph">
+            <option value="line">Line</option>
+            <option value="bar">Bar</option>
+        </select>
+
+    </div>
+
+    <button type="submit" id="toMap">Exited? Map for the data</button>
+
     <div id="chart"></div>
-    <br><br>
-    <button id="add-data" style="height: 20px; background-color: rgb(25, 195, 195); 
-            border-radius: 20px; margin-right: 20px;">
-        View estimative data
-    </button>
-    <button id="navigation" style="height: 20px; background-color: rgb(237, 166, 22); 
-            border-radius: 20px;">
-        View birth and death charts
-    </button>
+
+
+    
+    
 </body>
 </html>
+
+   
