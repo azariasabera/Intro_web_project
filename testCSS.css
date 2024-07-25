@@ -1,0 +1,31 @@
+.dropdown {
+    position: relative;
+    display: inline-block;
+    width: 200px;
+}
+.dropdown-input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+.dropdown-list {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ddd;
+    width: 100%;
+    box-sizing: border-box;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1;
+}
+.dropdown-list div {
+    padding: 8px;
+    cursor: pointer;
+}
+.dropdown-list div:hover {
+    background-color: #ddd;
+}
+.dropdown-active .dropdown-list {
+    display: block;
+}
