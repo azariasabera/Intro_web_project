@@ -138,7 +138,7 @@ const fetchRegion = async () => {
 const getData = async () => {
     const regions = await fetchRegion();
     jsonQuery.query[0].selection.values = Object.keys(regions);
-    jsonQuery.query[4].selection.values = ["2022"];
+    jsonQuery.query[4].selection.values = [document.getElementById('year').value];
     const url = "https://statfin.stat.fi:443/PxWeb/api/v1/en/StatFin/tyokay/statfin_tyokay_pxt_115b.px";
     const res = await fetch(url, {
         method: "POST",
@@ -149,6 +149,7 @@ const getData = async () => {
         return;
     }
     const data = await res.json();
+    console.log('data got', data);
     return data;
 };
 
@@ -239,6 +240,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let employmentCheck = document.getElementById('showEmployment');
     let unemploymentCheck = document.getElementById('showUnemployment');
     let goButton = document.getElementById('go');
+    let yearSelect = document.getElementById('year');
+    let addData = document.getElementById('addData');
+    let dropArea = document.getElementById('dropArea');
+    let container = document.querySelector('.dragDropContainer');
+    let cards = document.querySelectorAll('.card');
+    let cardContainer = document.querySelector('.cardContainer');
+    let top = document.getElementById('top');
+    let bottom = document.getElementById('bottom');
 
     employmentCheck.addEventListener('click', () => {
         if (employmentCheck.checked) {
@@ -258,5 +267,78 @@ document.addEventListener('DOMContentLoaded', () => {
 
     goButton.addEventListener('click', () => {
         window.location.href = '/';
+    });
+
+    let years = [2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010];
+    years.forEach(year => {
+        let option = document.createElement('option');
+        option.value = year;
+        option.text = year;
+        yearSelect.add(option);
+    });
+
+    yearSelect.addEventListener('change', () => {
+        populateData();
+    });
+
+    addData.addEventListener('change', () => {
+        if (addData.checked) {
+            container.style.display = 'block';
+        } 
+    });
+
+    cards.forEach(card => {
+        card.addEventListener('dragstart', () => {
+            card.classList.add('dragging');
+        });
+    
+        card.addEventListener('dragend', () => {
+            card.classList.remove('dragging');
+        });
+    });
+    
+    dropArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+    });
+    
+    dropArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const card = document.querySelector('.dragging');
+        if (card) {
+            dropArea.appendChild(card);
+            card.classList.remove('dragging');
+        }
+        jsonQuery.query[1].selection.values = getValues();
+        populateData();
+    });
+
+    const getValues = () => {
+        const values = [];
+        cardsInDropArea = dropArea.querySelectorAll('.card');
+        cardsInDropArea.forEach(card => {
+            values.push(card.id);
+        });
+        return values;
+    }
+
+    cardContainer.addEventListener('dragover', (e) => {
+        e.preventDefault();
+    });
+
+    cardContainer.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const card = document.querySelector('.dragging');
+        if (card) {
+            cardContainer.appendChild(card);
+            card.classList.remove('dragging');
+        }
+    });
+
+    top.addEventListener('click', () => {
+        document.getElementById('topDiv').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    bottom.addEventListener('click', () => {
+        container.scrollIntoView({ behavior: 'smooth' });
     });
 });
