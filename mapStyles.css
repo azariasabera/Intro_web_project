@@ -75,9 +75,38 @@
     border-radius: 50%;
     cursor: pointer;
     font-size: 14px;
-    margin-left: 30px;
+    margin-left: 300px;
 }
 
 #hide:hover {
     background-color: #ff4500;
+}
+.legend {
+    position: absolute;
+    top: 5px;
+    left: 70%;
+    transform: translateX(-50%);
+    background-color: #fff;
+    padding: 0 10px;
+    font-weight: bold;
+}
+
+#radioDiv {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Adjust the gap between radio buttons as needed */
+}
+
+.radio-container {
+    display: flex;
+    align-items: center;
+}
+
+.radio-container input[type="radio"] {
+    margin-right: 5px; /* Space between radio button and label */
+}
+
+#topDiv {
+    margin-bottom: 20px;
+    margin-top: 20px;
 }

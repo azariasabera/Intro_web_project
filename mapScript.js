@@ -1,8 +1,6 @@
 const geoJsonURL = "https://geo.stat.fi/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typeName=tilastointialueet:kunta4500k&outputFormat=json&srsName=EPSG:4326";
-let dataset = {};
-let employment = [];
-let unemployment = [];
-let isEmployment = true;
+let dataArray = [];
+
 let map, geoJsonLayer;
 let jsonQuery = {
     "query": [
@@ -108,11 +106,15 @@ const initMap = function(data) {
     };
 
     let overlayMaps = {
-        "Municipalities": geoJsonLayer
+        "Show Regions": geoJsonLayer
     };
 
-    L.control.layers(baseMaps, overlayMaps).addTo(map);
+    let showLegend =
+        L.control({ position: 'topleft' });
+
+    L.control.layers(baseMaps, overlayMaps, addLegend()).addTo(map);
     map.fitBounds(geoJsonLayer.getBounds());
+
 };
 
 const updateMap = function(data) {
@@ -127,11 +129,32 @@ const updateMap = function(data) {
     map.fitBounds(geoJsonLayer.getBounds());
 };
 
+const addLegend = () => {
+    const legend = L.control({ position: 'topleft' });
+
+    legend.onAdd = function() {
+        const div = L.DomUtil.create('div', 'info legend');
+        const grades = [0, 20, 50, 80, 100, 120]; // Adjust these values as needed
+        const labels = ['Very Low', 'Low', 'Moderate', 'High', 'Very High'];
+        const colors = ['#ff0000', '#ff5500', '#ffff00', '#55ff00', '#00ff00']; // Red, Orange, Yellow, Green, Dark Green
+
+        // Loop through the grades and create a label with colored square
+        for (let i = 0; i < grades.length; i++) {
+            div.innerHTML +=
+                '<i style="background:' + colors[i] + '"></i> ' +
+                (grades[i] ? grades[i] + ' - ' + (grades[i + 1] ? grades[i + 1] : 'Above') + '<br>' : '+');
+        }
+
+        return div;
+    };
+
+    legend.addTo(map);
+};
+
 const fetchRegion = async () => {
     const url = "regions.json";
     const res = await fetch(url);
     const data = await res.json();
-    dataset = data;
     return data;
 };
 
@@ -149,7 +172,6 @@ const getData = async () => {
         return;
     }
     const data = await res.json();
-    console.log('data got', data);
     return data;
 };
 
@@ -157,19 +179,15 @@ const populateData = async () => {
     const data = await getData();
     const sortingCriteria = data.dimension.Alue.category.index;
 
-    let employmentData = data.value.slice(0, data.value.length / 2);
-    let unemploymentData = data.value.slice(data.value.length / 2);
+    let dataValues = data.value;
 
-    employmentData.forEach((value, index) => {
+    dataValues.forEach((value, index) => {
         const region = Object.keys(sortingCriteria).find(key => sortingCriteria[key] === index);
-        employment[region] = value;
+        dataArray[region] = value;
     });
-    unemploymentData.forEach((value, index) => {
-        const region = Object.keys(sortingCriteria).find(key => sortingCriteria[key] === index);
-        unemployment[region] = value;
-    });
+        
     fetchData();
-    return [employment, unemployment];
+    return dataArray;
 };
 
 const getFeature = (features, layer) => {
@@ -177,93 +195,49 @@ const getFeature = (features, layer) => {
 
     layer.bindTooltip(features.properties.name);
 
-    if (isEmployment) {
-        layer.bindPopup(
-            `<ul>
-                <li>Name: ${features.properties.name}</li>
-                <li>Employment: ${employment[`KU${municipality}`]}</li>
-                <li><button onclick="window.location.href='/chart.html?KU${municipality}'">Chart description</button></li>
-            </ul>`
-        );
-    } else {
-        layer.bindPopup(
-            `<ul>
-                <li>Name: ${features.properties.name}</li>
-                <li>Unemployment: ${unemployment[`KU${municipality}`]}</li>
-                <li><button onclick="window.location.href='/chart.html?KU${municipality}'">Chart description</button></li>
-            </ul>`
-        );
-    }
+    // get the name in the checked radio button
+    const radioDiv = document.getElementById('radioDiv');
+    const checkedRadio = radioDiv.querySelector('input[type="radio"]:checked');
+
+    layer.bindPopup(
+        `<ul>
+            <li>Name: ${features.properties.name}</li>
+            <li>${checkedRadio.textContent}: ${dataArray[`KU${municipality}`]}</li>
+            <li><button onclick="window.location.href='/chart.html?KU${municipality}'">Chart description</button></li>
+        </ul>`
+    );
 };
 
 const getStyle = (features) => {
-    const municipality = features.properties.kunta;
-    if (isEmployment)
-        return {
-            fillColor: `hsl(${getEmploymentHue(features)}, 55%, 50%)`,
-            color: `hsl(${getEmploymentHue(features)}, 75%, 50%)`,
-            fillOpacity: 0.8
-        }
-    else
-        return {
-            fillColor: `hsl(${getUnemploymentHue(features)}, 50%, 50%)`,
-            color: `hsl(${getUnemploymentHue(features)}, 75%, 50%)`,
-            fillOpacity: 0.8
-        }
+    return {
+        fillColor: `hsl(${getHue(features)}, 75%, 50%)`,
+        color: `hsl(${getHue(features)}, 75%, 50%)`,
+        fillOpacity: 0.8
+    };
 };
 
-const getEmploymentHue = (features) => {
-    const data = employment[`KU${features.properties.kunta}`];
+const getHue = (features) => {
+    const data = dataArray[`KU${features.properties.kunta}`];
     if (data > 100000) return 120;
     if (data > 50000) return 100;
     if (data > 10000) return 80;
     if (data > 1000) return 60;
     if (data > 500) return 50;
-    if (data <= 500) return 40;
-};
-
-const getUnemploymentHue = (features) => {
-    const data = unemployment[`KU${features.properties.kunta}`];
-    
-    if (data > 100000) return 0;
-    if (data > 50000) return 10;
-    if (data > 10000) return 20;
-    if (data > 5000) return 30;
-    if (data > 1000) return 40;
-    if (data > 500) return 45;
-    if (data <= 500) return 50;
+    if (data > 100) return 20;
+    if (data <= 100) return 0;
 };
 
 populateData();
 
 document.addEventListener('DOMContentLoaded', () => {
-    let employmentCheck = document.getElementById('showEmployment');
-    let unemploymentCheck = document.getElementById('showUnemployment');
     let goButton = document.getElementById('go');
     let yearSelect = document.getElementById('year');
-    let addData = document.getElementById('addData');
     let dropArea = document.getElementById('dropArea');
     let container = document.querySelector('.dragDropContainer');
     let cards = document.querySelectorAll('.card');
     let cardContainer = document.querySelector('.cardContainer');
     let top = document.getElementById('top');
     let bottom = document.getElementById('bottom');
-
-    employmentCheck.addEventListener('click', () => {
-        if (employmentCheck.checked) {
-            isEmployment = true;
-            unemploymentCheck.checked = false;
-            fetchData();
-        }
-    });
-
-    unemploymentCheck.addEventListener('click', () => {
-        if (unemploymentCheck.checked) {
-            isEmployment = false;
-            employmentCheck.checked = false;
-            fetchData();
-        }
-    });
 
     goButton.addEventListener('click', () => {
         window.location.href = '/';
@@ -279,12 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     yearSelect.addEventListener('change', () => {
         populateData();
-    });
-
-    addData.addEventListener('change', () => {
-        if (addData.checked) {
-            container.style.display = 'block';
-        } 
     });
 
     cards.forEach(card => {
@@ -308,18 +276,49 @@ document.addEventListener('DOMContentLoaded', () => {
             dropArea.appendChild(card);
             card.classList.remove('dragging');
         }
-        jsonQuery.query[1].selection.values = getValues();
-        populateData();
+        getRadioButtons();
     });
 
-    const getValues = () => {
-        const values = [];
-        cardsInDropArea = dropArea.querySelectorAll('.card');
-        cardsInDropArea.forEach(card => {
-            values.push(card.id);
+    const getRadioButtons = () => {
+        const radioDiv = document.getElementById('radioDiv');
+        radioDiv.innerHTML = ''; // Clear any existing content
+
+        const p = document.createElement('p');
+            p.textContent = 'Which to show?';
+        radioDiv.appendChild(p);
+    
+        let cardsInDropArea = dropArea.querySelectorAll('.card');
+        cardsInDropArea.forEach((card, index) => {
+            const radio = document.createElement('input');
+            radio.type = 'radio';
+            radio.name = 'radio';
+            radio.id = card.id;
+    
+            const cardName = card.querySelector('p').textContent;
+    
+            const label = document.createElement('label');
+            label.textContent = cardName;
+            radio.textContent = cardName;
+            label.htmlFor = radio.id;
+
+            if (index === 0) {
+                radio.checked = true;
+            }
+
+            const radioContainer = document.createElement('div');
+            radioContainer.classList.add('radio-container');
+            radioContainer.appendChild(radio);
+            radioContainer.appendChild(label);
+    
+            radioDiv.appendChild(radioContainer);
         });
-        return values;
-    }
+        radioDiv.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', (event) => {
+                jsonQuery.query[1].selection.values = [event.target.id];
+                populateData();
+            });
+        });
+    };    
 
     cardContainer.addEventListener('dragover', (e) => {
         e.preventDefault();
@@ -341,4 +340,6 @@ document.addEventListener('DOMContentLoaded', () => {
     bottom.addEventListener('click', () => {
         container.scrollIntoView({ behavior: 'smooth' });
     });
+
+    getRadioButtons();
 });
