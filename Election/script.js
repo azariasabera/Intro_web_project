@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     yearsArray = [1976, 1980, 1984, 1988, 1992, 1996, 2000, 2004, 2008, 2012, 2017, 2021];
 
     const fetchMunicipality = async () => {
-        const url = "municipalities.json"
+        const url = "Data/municipalities.json"
         const res = await fetch(url)
         const data = await res.json()   
         //console.log(data)

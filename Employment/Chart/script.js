@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     
 
     const fetchRegion = async () => {
-        const url = "regions.json"
+        const url = "Data/regions.json"
         const res = await fetch(url)
         const data = await res.json()   
         //console.log(data)
@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 //console.log('jsonQueryyy', jsonQuery)
                 buildChart(selectGraph.value);
                 // remove the query parameters from the URL
-                window.history.replaceState({}, document.title, "/chart.html");
+                window.history.replaceState({}, document.title, "/Chart/index.html");
             }
             else console.log('Municipality not found')
         }
@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });  
     
     toMap.addEventListener("click", () => {
-        window.location.href = "map.html";
+        window.location.href = "Map/index.html";
     });
 
     checkBoxes.forEach(checkbox => {

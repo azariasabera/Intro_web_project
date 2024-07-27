@@ -152,7 +152,7 @@ const addLegend = () => {
 };
 
 const fetchRegion = async () => {
-    const url = "regions.json";
+    const url = "Data/regions.json";
     const res = await fetch(url);
     const data = await res.json();
     return data;
@@ -203,7 +203,8 @@ const getFeature = (features, layer) => {
         `<ul>
             <li>Name: ${features.properties.name}</li>
             <li>${checkedRadio.textContent}: ${dataArray[`KU${municipality}`]}</li>
-            <li><button onclick="window.location.href='/chart.html?KU${municipality}?${checkedRadio.id}'">Chart description</button></li>
+            <li><button onclick="window.location.href='
+                /Chart/index.html?KU${municipality}?${checkedRadio.id}'">Chart description</button></li>
         </ul>`
     );
 };
