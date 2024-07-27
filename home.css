@@ -131,3 +131,53 @@ button:hover {
     background-color: #009688;
     border-radius: 10px;
 }
+
+
+/* Media Queries */
+
+@media screen and (max-width: 1000px) {
+    .navbar {
+        width: 100%;
+    }
+    .navbar ul li {
+        display: block;
+        margin: 10px 0;
+    }
+    .navbar ul li a {
+        font-size: 16px;
+    }
+    .content h1 {
+        font-size: 40px;
+    }
+    .content p {
+        font-size: 18px;
+    }
+    button {
+        margin: 0px 0px 20px 0px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .content h1 {
+        font-size: 30px;
+    }
+    .content p {
+        font-size: 16px;
+    }
+    button {
+        margin: 0px 0px 20px 0px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .content h1 {
+        font-size: 25px;
+    }
+    .content p {
+        font-size: 14px;
+    }
+    button {
+        margin: 0px 0px 20px 0px;
+    }
+}
+

@@ -1,3 +1,105 @@
+const jsonQuery = 
+    {
+        "query": [
+            {
+            "code": "Vuosi",
+            "selection": {
+                "filter": "item",
+                "values": [1976, 1980, 1984, 1988, 1992, 1996, 2000, 2004, 2008, 2012, 2017, 2021]
+            }
+            },
+            {
+            "code": "Alue",
+            "selection": {
+                "filter": "item",
+                "values": [
+                "000000"
+                ]
+            }
+            },
+            {
+            "code": "Puolue",
+            "selection": {
+                "filter": "item",
+                "values": [
+                "03",
+                "01",
+                "04",
+                "02",
+                "06",
+                "07",
+                "08",
+                "80"
+                ]
+            }
+            },
+            {
+            "code": "Tiedot",
+            "selection": {
+                "filter": "item",
+                "values": [
+                "osuus_aanista"
+                ]
+            }
+            }
+        ],
+        "response": {
+            "format": "json-stat2"
+        }
+
+    }
+
+const getData = async () => {
+    console.log('jsonQuery', jsonQuery)
+    const url = "https://statfin.stat.fi:443/PxWeb/api/v1/en/StatFin/kvaa/statfin_kvaa_pxt_12g3.px"
+    const res = await fetch(url, {
+        method: "POST",
+        headers: {"content-type": "application/json"},
+        body: JSON.stringify(jsonQuery)
+    })
+    if(!res.ok) {
+        return;
+    }
+    const data = await res.json()
+    return data
+}
+
+const buildChart = async (type="line") => {
+    const data = await getData()
+
+    const dataValues = data.value;
+    const years = Object.values(data.dimension.Vuosi.category.label);
+    const sortingCriteria = data.dimension.Puolue.category.index;
+    const partiesWithNames = data.dimension.Puolue.category.label;
+    let parties = Object.values(partiesWithNames);
+
+    parties.forEach((party, index) => {
+        let partySupport = []; // to store the data for each party
+        const partyCode = Object.keys(partiesWithNames).find(key => partiesWithNames[key] === party);
+        dataValues.forEach((value, i) => {
+            if((i) % parties.length === sortingCriteria[partyCode]) {
+                partySupport.push(value)
+            }
+        })
+        parties[index] = {
+            name: party,
+            values: partySupport
+        }
+    })
+
+    const chartData = {
+        labels: years,
+        datasets: parties
+    }
+
+    const chart = new frappe.Chart("#chart", {
+        title: "Votes in Finnish municipalities",
+        data: chartData,
+        type: type,
+        height: 450,
+        colors: ["#63d0ff", "#363636"]
+    })
+}
 
 document.addEventListener("DOMContentLoaded", async () => {
     const dropdownInput = document.getElementById("dropdownInput");
@@ -9,15 +111,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     const showSingleYear = document.getElementById("showSingleYear");
     const yearRangeDiv = document.getElementById("yearRangeDiv");
     const singleYear = document.getElementById("singleYear");
+    const download = document.getElementById("downloadChart");
+
+    download.addEventListener("click", () => { // Downloads the chart as a PNG image
+        html2canvas(document.getElementById("chart")).then(canvas => {
+            const link = document.createElement("a");
+            link.href = canvas.toDataURL("image/png");
+            link.download = "chart.png";
+            link.click();
+        });
+    });
     
 
     yearsArray = [1976, 1980, 1984, 1988, 1992, 1996, 2000, 2004, 2008, 2012, 2017, 2021];
 
     const fetchMunicipality = async () => {
-        const url = "Data/municipalities.json"
+        const url = "../../Data/municipalities.json"; 
         const res = await fetch(url)
         const data = await res.json()   
-        //console.log(data)
         return data
     };
 
@@ -124,119 +235,5 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     dropdownInput.addEventListener("input", filterOptions);
     populateDropdown();
-    console.log(dropdownInput.value)
+    buildChart();
 });
-
-
-
-const jsonQuery = 
-    {
-        "query": [
-            {
-            "code": "Vuosi",
-            "selection": {
-                "filter": "item",
-                "values": [1976, 1980, 1984, 1988, 1992, 1996, 2000, 2004, 2008, 2012, 2017, 2021]
-            }
-            },
-            {
-            "code": "Alue",
-            "selection": {
-                "filter": "item",
-                "values": [
-                "000000"
-                ]
-            }
-            },
-            {
-            "code": "Puolue",
-            "selection": {
-                "filter": "item",
-                "values": [
-                "03",
-                "01",
-                "04",
-                "02",
-                "06",
-                "07",
-                "08",
-                "80"
-                ]
-            }
-            },
-            {
-            "code": "Tiedot",
-            "selection": {
-                "filter": "item",
-                "values": [
-                "osuus_aanista"
-                ]
-            }
-            }
-        ],
-        "response": {
-            "format": "json-stat2"
-        }
-
-    }
-
-const getData = async () => {
-    console.log('jsonQuery', jsonQuery)
-    const url = "https://statfin.stat.fi:443/PxWeb/api/v1/en/StatFin/kvaa/statfin_kvaa_pxt_12g3.px"
-    const res = await fetch(url, {
-        method: "POST",
-        headers: {"content-type": "application/json"},
-        body: JSON.stringify(jsonQuery)
-    })
-    if(!res.ok) {
-        return;
-    }
-    const data = await res.json()
-    console.log(data)
-    console.log(JSON.stringify(data.dimension.Alue.category.label))
-
-    return data
-}
-
-const buildChart = async (type="line") => {
-    const data = await getData()
-
-    const dataValues = data.value;
-
-    const years = Object.values(data.dimension.Vuosi.category.label);
-
-    const sortingCriteria = data.dimension.Puolue.category.index;
-    const partiesWithNames = data.dimension.Puolue.category.label;
-    let parties = Object.values(partiesWithNames);
-
-    parties.forEach((party, index) => {
-        let partySupport = []; // to store the data for each party
-        const partyCode = Object.keys(partiesWithNames).find(key => partiesWithNames[key] === party);
-        dataValues.forEach((value, i) => {
-            if((i) % parties.length === sortingCriteria[partyCode]) {
-                partySupport.push(value)
-            }
-        })
-        parties[index] = {
-            name: party,
-            values: partySupport
-        }
-    })
-    console.log(parties)
-    
-    const chartData = {
-        labels: years,
-        datasets: parties
-    }
-
-    const chart = new frappe.Chart("#chart", {
-        title: "Votes in Finnish municipalities",
-        data: chartData,
-        type: type,
-        height: 450,
-        colors: ["#63d0ff", "#363636"]
-    })
-}
-
-buildChart()
-//getData()

@@ -1,176 +1,6 @@
-let checkedBoxes = ['11'];
-let checkedAge = [];
-let checkedSex = [];
-document.addEventListener("DOMContentLoaded", async () => {
-    const dropdownInput = document.getElementById("dropdownInput");
-    const dropdownList = document.getElementById("dropdownList");
-    const dropdown = document.querySelector(".dropdown");
-    const selectGraph = document.getElementById("selectGraph");
-    const toMap = document.getElementById("toMap");
-    const checkBoxes = document.querySelectorAll(".checkBox");
-    const ageCorrelation = document.getElementById("ageCorrelations");
-    const sexCorrelation = document.getElementById("sexCorrelation");
-
-    document.getElementById("downloadChart").addEventListener("click", () => {
-        html2canvas(document.getElementById("chart")).then(canvas => {
-            const link = document.createElement("a");
-            link.href = canvas.toDataURL("image/png");
-            link.download = "chart.png";
-            link.click();
-        });
-    });
-    
-
-    const fetchRegion = async () => {
-        const url = "Data/regions.json"
-        const res = await fetch(url)
-        const data = await res.json()   
-        //console.log(data)
-        return data
-    };
-
-    const getUrlParameter = () => {
-        const queryString = window.location.search;
-        const region = queryString.split('?')[1];
-        const id = queryString.split('?')[2];
-        if (region && id) {
-            return [region, id];
-        }
-        return null;
-    };
-
-
-    const populateDropdown = async () => {
-
-        dropdownList.innerHTML = '';
-
-        const optionValues = await fetchRegion();
-        Object.entries(optionValues).forEach(([key, value]) => {
-            const option = document.createElement('div');
-            option.textContent = value;
-            option.dataset.value = key;
-
-            option.addEventListener('click', () => {
-                dropdownInput.value = value;
-                dropdown.classList.remove('dropdown-active');
-
-                jsonQuery.query[0].selection.values = [key];
-                buildChart(selectGraph.value);
-            });
-            dropdownList.appendChild(option)
-        });
-
-        const regionParam = getUrlParameter();
-        console.log(regionParam)
-        if (regionParam) {
-            let id = '';
-            checkBoxes.forEach(checkbox => {
-                if (regionParam[1] === checkbox.value){
-                    checkbox.checked = true;
-                    id = checkbox.value;
-                    checkedBoxes = [];
-                    checkedBoxes.push(id);
-                    console.log('HEYY the id is',id)
-                }
-                else
-                    checkbox.checked = false;
-            });
-            const regionName = optionValues[regionParam[0]];
-            if (regionName) {
-                dropdownInput.value = regionName;
-                jsonQuery.query[0].selection.values = [regionParam[0]];
-                jsonQuery.query[1].selection.values = [id];
-                //console.log('jsonQueryyy', jsonQuery)
-                buildChart(selectGraph.value);
-                // remove the query parameters from the URL
-                window.history.replaceState({}, document.title, "/Chart/index.html");
-            }
-            else console.log('Municipality not found')
-        }
-        else console.log('NOTHING')
-    }
-
-    function filterOptions() {
-        const filterText = dropdownInput.value.toLowerCase();
-
-        const options = dropdownList.children; // these are divs
-        Object.values(options).forEach(option => {
-            const text = option.textContent.toLocaleLowerCase();
-            if (text.includes(filterText))
-                option.style.display = ''; // display
-            else
-                option.style.display = 'none'; // don't display
-        })
-    }
-
-    dropdownInput.addEventListener("focus", function() {
-        dropdown.classList.add("dropdown-active");
-    });
-
-    dropdownInput.addEventListener("blur", function() {
-        // Timeout to allow click event to register before hiding
-        setTimeout(() => {
-            dropdown.classList.remove("dropdown-active");
-        }, 200);
-    });
-
-    selectGraph.addEventListener("change", () => {
-        if (selectGraph.value === "line") {
-            buildChart("line");
-        }
-        else {
-            buildChart("bar");
-        }
-    });  
-    
-    toMap.addEventListener("click", () => {
-        window.location.href = "Map/index.html";
-    });
-
-    checkBoxes.forEach(checkbox => {
-        checkbox.addEventListener("change", () => {
-            // collect all the checked checkboxes, and return array of their values
-            const checked = Array.from(checkBoxes).filter(checkbox => checkbox.checked);
-            const values = checked.map(checkbox => checkbox.value);
-            if (values.length !== 0) {
-                jsonQuery.query[1].selection.values = values;
-                console.log(jsonQuery)
-                buildChart(selectGraph.value);
-                checkedBoxes = [];
-                checkedBoxes = values;
-                console.log('YAYY UM CHECKED')
-            }
-        });
-    });
-
-    /*ageCorrelation.addEventListener("change", () => {
-        if (ageCorrelation.checked) {
-            // create 3 checkboxes for age groups
-            const ageGroups = ['0-17', '18-64', '65-'];
-            for (let i = 0; i < 3; i++) {
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.value = i;
-                checkbox.classList.add('check-box');
-                checkbox.addEventListener('change', () => {
-                    const checked = Array.from(checkedAge).filter(checkbox => checkbox.checked);
-                    const values = checked.map(checkbox => checkbox.value);
-                    if (values.length !== 0) {
-                        jsonQuery.query[3].selection.values = values;
-                        console.log(jsonQuery)
-                        buildChart(selectGraph.value);
-                    }
-
-                });
-                checkedAge.push(checkbox);
-                const label = document.createElement('label');
-                label.textContent = ageGroups[i];
-    }}});*/
-
-    dropdownInput.addEventListener("input", filterOptions);
-    populateDropdown();
-    console.log(dropdownInput.value)
-});
+let checkedBoxes = ['11']; // Stores the checked checkboxes, initially the first one is checked
+//let checkedAge = [];
+//let checkedSex = [];
 
 const jsonQuery = 
 {
@@ -231,7 +61,7 @@ const jsonQuery =
     }
   }
 
-const getData = async () => {
+const getData = async () => { // Fetches data from the API and returns it
     console.log('jsonQuery', jsonQuery)
     const url = "https://statfin.stat.fi:443/PxWeb/api/v1/en/StatFin/tyokay/statfin_tyokay_pxt_115b.px"
     const res = await fetch(url, {
@@ -243,21 +73,17 @@ const getData = async () => {
         return;
     }
     const data = await res.json()
-    console.log('data', data)
-    //console.log(JSON.stringify(data.dimension.Alue.category.label))
-
     return data
 }
 
-const buildChart = async (type="line") => {
+const buildChart = async (type="line") => { // Builds the chart, accepts the type of the chart as an argument
     const data = await getData();
 
-    const years = Object.values(data.dimension.Vuosi.category.label);
-    const sortingCriteria = data.dimension['Pääasiallinen toiminta'].category.index;
-    const separationPoint = data.value.length / checkedBoxes.length;
+    const years = Object.values(data.dimension.Vuosi.category.label); // x-axis values
+    const sortingCriteria = data.dimension['Pääasiallinen toiminta'].category.index; // Tells the order of the data
+    const separationPoint = data.value.length / checkedBoxes.length; // Separates the data into equal parts
 
     let datasets = [];
-    //console.log('important', checkedBoxes, sortingCriteria, separationPoint)
 
     checkedBoxes.forEach((value) => {
         const order = sortingCriteria[value];
@@ -266,7 +92,6 @@ const buildChart = async (type="line") => {
             values: data.value.slice(separationPoint * order, separationPoint * (order + 1))
         })
     });
-    //console.log(datasets)
     
     const chartData = {
         labels: years,
@@ -278,8 +103,171 @@ const buildChart = async (type="line") => {
         data: chartData,
         type: type,
         height: 450,
-        //colors: ["#63d0ff", "#363636"]
+        colors: ['red', 'blue', 'green', 'purple', 'orange', 'black']
     })
 }
 
-buildChart()
+document.addEventListener("DOMContentLoaded", async () => { // When the page is loaded
+    const dropdown = document.querySelector(".dropdown"); // Contains the dropdown content
+    const dropdownInput = document.getElementById("dropdownInput"); // The input field in the dropdown
+    const dropdownList = document.getElementById("dropdownList"); // The list of regions in the dropdown
+    const selectGraph = document.getElementById("selectGraph");
+    const toMap = document.getElementById("toMap");
+    const checkBoxes = document.querySelectorAll(".checkBox");
+    const download = document.getElementById("downloadChart");
+    //const ageCorrelation = document.getElementById("ageCorrelations");
+    //const sexCorrelation = document.getElementById("sexCorrelation");
+
+    download.addEventListener("click", () => { // Downloads the chart as a PNG image
+        html2canvas(document.getElementById("chart")).then(canvas => {
+            const link = document.createElement("a");
+            link.href = canvas.toDataURL("image/png");
+            link.download = "chart.png";
+            link.click();
+        });
+    });
+    
+    const fetchRegion = async () => { // Gets the regions from the JSON file
+        const url = "../../Data/regions.json"
+        const res = await fetch(url)
+        const data = await res.json()   
+        return data
+    };
+
+    const getUrlParameter = () => { // Gets the query parameters from the URL, returns them as an array
+        const queryString = window.location.search;
+        const region = queryString.split('?')[1];
+        const id = queryString.split('?')[2];
+        if (region && id) {
+            return [region, id];
+        }
+        return null;
+    };
+
+    const optionValues = await fetchRegion(); // Gets the regions from the JSON file
+    const populateDropdown = async () => { // Populates the dropdown with the regions
+        dropdownList.innerHTML = ''; // Clears the dropdown list first
+
+        Object.entries(optionValues).forEach(([key, value]) => {
+            const option = document.createElement('div');
+            option.textContent = value;
+            option.dataset.value = key; // Sets the dataset value to the key
+
+            option.addEventListener('click', () => { // When an option is clicked
+                dropdownInput.value = value;
+                dropdown.classList.remove('dropdown-active'); // Hides the dropdown
+
+                jsonQuery.query[0].selection.values = [key];
+                buildChart(selectGraph.value);
+            });
+            dropdownList.appendChild(option)
+        });
+    }
+
+    function filterOptions() { // Filters the options in the dropdown
+        const filterText = dropdownInput.value.toLowerCase();
+
+        const options = dropdownList.children; // these are divs
+        Object.values(options).forEach(option => {
+            const text = option.textContent.toLocaleLowerCase();
+            if (text.includes(filterText)) // If the text includes the filter text
+                option.style.display = ''; // display
+            else
+                option.style.display = 'none'; // don't display
+        })
+    }
+
+    dropdownInput.addEventListener("focus", function() {
+        dropdown.classList.add("dropdown-active");
+    });
+
+    dropdownInput.addEventListener("blur", function() {
+        // Timeout to allow click event to register before hiding
+        setTimeout(() => {
+            dropdown.classList.remove("dropdown-active");
+        }, 200);
+    });
+
+    /*----------- HANDLING REDIRECT FROM MAP TO CHART --------------*/
+    const regionParam = getUrlParameter(); // Gets the array of query parameters or null
+    if (regionParam) { // If there are query parameters
+        let id = '';
+        checkBoxes.forEach(checkbox => {
+            if (regionParam[1] === checkbox.value){
+                checkbox.checked = true;
+                id = checkbox.value;
+                checkedBoxes = []; // clears the checked boxes
+                checkedBoxes.push(id); // pushes the checked box
+            }
+            else
+                checkbox.checked = false; // unchecks the other checkboxes (if any)
+        });
+        const regionName = optionValues[regionParam[0]];
+        if (regionName) {
+            dropdownInput.value = regionName;
+            jsonQuery.query[0].selection.values = [regionParam[0]];
+            jsonQuery.query[1].selection.values = [id];
+            buildChart(selectGraph.value);
+            // removes the query parameters from the URL
+            window.history.replaceState({}, document.title, "/Chart/index.html");
+        }
+        else console.log('Municipality not found')
+    }
+    else console.log('NOTHING')
+    /*------------------------------------------------------------*/
+
+    selectGraph.addEventListener("change", () => {
+        if (selectGraph.value === "line") {
+            buildChart("line");
+        }
+        else {
+            buildChart("bar");
+        }
+    });  
+    
+    toMap.addEventListener("click", () => {
+        window.location.href = "../../Employment/Map/index.html";
+    });
+
+    checkBoxes.forEach(checkbox => {
+        checkbox.addEventListener("change", () => {
+            // collect all the checked checkboxes, and return array of their values
+            const checked = Array.from(checkBoxes).filter(checkbox => checkbox.checked);
+            const values = checked.map(checkbox => checkbox.value);
+            if (values.length !== 0) {
+                jsonQuery.query[1].selection.values = values;
+                buildChart(selectGraph.value);
+                checkedBoxes = []; // clears the checked boxes
+                checkedBoxes = values; // pushes the checked boxes
+            }
+        });
+    });
+
+    /*ageCorrelation.addEventListener("change", () => {
+        if (ageCorrelation.checked) {
+            // create 3 checkboxes for age groups
+            const ageGroups = ['0-17', '18-64', '65-'];
+            for (let i = 0; i < 3; i++) {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = i;
+                checkbox.classList.add('check-box');
+                checkbox.addEventListener('change', () => {
+                    const checked = Array.from(checkedAge).filter(checkbox => checkbox.checked);
+                    const values = checked.map(checkbox => checkbox.value);
+                    if (values.length !== 0) {
+                        jsonQuery.query[3].selection.values = values;
+                        console.log(jsonQuery)
+                        buildChart(selectGraph.value);
+                    }
+
+                });
+                checkedAge.push(checkbox);
+                const label = document.createElement('label');
+                label.textContent = ageGroups[i];
+    }}});*/
+
+    dropdownInput.addEventListener("input", filterOptions);
+    populateDropdown();
+    buildChart();
+});

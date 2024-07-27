@@ -1,8 +1,9 @@
 const geoJsonURL = "https://geo.stat.fi/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typeName=tilastointialueet:kunta4500k&outputFormat=json&srsName=EPSG:4326";
-let dataArray = [];
+let regionsData = []; // This will hold the data for each region
 
-let map, geoJsonLayer;
-let jsonQuery = {
+let map, geoJsonLayer; // Declares map and geoJsonLayer variables
+
+let jsonQuery = { // JSON object for the query
     "query": [
         {
             "code": "Alue",
@@ -68,7 +69,7 @@ let jsonQuery = {
     }
 };
 
-const fetchData = async () => {
+const fetchGeoJsonData = async () => { // Fetches GeoJSON data
     let response = await fetch(geoJsonURL);
     let data = await response.json();
     if (!map) {
@@ -78,7 +79,7 @@ const fetchData = async () => {
     }
 };
 
-const initMap = function(data) {
+const initMap = function(data) { // Initializes the map
     map = L.map('map', {
         minZoom: -3
     });
@@ -109,15 +110,11 @@ const initMap = function(data) {
         "Show Regions": geoJsonLayer
     };
 
-    let showLegend =
-        L.control({ position: 'topleft' });
-
     L.control.layers(baseMaps, overlayMaps, addLegend()).addTo(map);
     map.fitBounds(geoJsonLayer.getBounds());
-
 };
 
-const updateMap = function(data) {
+const updateMap = function(data) { // Updates the map
     map.removeLayer(geoJsonLayer);
 
     geoJsonLayer = L.geoJSON(data, {
@@ -129,39 +126,34 @@ const updateMap = function(data) {
     map.fitBounds(geoJsonLayer.getBounds());
 };
 
-const addLegend = () => {
+const addLegend = () => { // Adds a legend to the map
+    // Define the legend
     const legend = L.control({ position: 'topleft' });
 
-    legend.onAdd = function() {
-        const div = L.DomUtil.create('div', 'info legend');
-        const grades = [0, 20, 50, 80, 100, 120]; // Adjust these values as needed
-        const labels = ['Very Low', 'Low', 'Moderate', 'High', 'Very High'];
-        const colors = ['#ff0000', '#ff5500', '#ffff00', '#55ff00', '#00ff00']; // Red, Orange, Yellow, Green, Dark Green
-
-        // Loop through the grades and create a label with colored square
-        for (let i = 0; i < grades.length; i++) {
-            div.innerHTML +=
-                '<i style="background:' + colors[i] + '"></i> ' +
-                (grades[i] ? grades[i] + ' - ' + (grades[i + 1] ? grades[i + 1] : 'Above') + '<br>' : '+');
-        }
-
+    // Utilizes leaflet's onAdd method to add the legend to the map
+    legend.onAdd = function (map) {
+        const div = L.DomUtil.create('div', 'legend'); // Create a div with class "legend"
+        div.innerHTML += '<div style="background: hsl(120,75%,50%)";></div><span>High</span><br>';
+        div.innerHTML += '<div style="background: hsl(60,75%,50%)";></div><span>Medium</span><br>';
+        div.innerHTML += '<div style="background: hsl(0,75%,50%)";></div><span>Low</span><br>';
         return div;
     };
-
     legend.addTo(map);
 };
 
-const fetchRegion = async () => {
-    const url = "Data/regions.json";
+const fetchRegion = async () => { // Fetches region/municipality data
+    const url = "../../Data/regions.json";
     const res = await fetch(url);
     const data = await res.json();
     return data;
 };
 
-const getData = async () => {
+const getData = async () => { // Updates the jsonQuery and makes a POST request to the API
     const regions = await fetchRegion();
-    jsonQuery.query[0].selection.values = Object.keys(regions);
-    jsonQuery.query[4].selection.values = [document.getElementById('year').value];
+
+    jsonQuery.query[0].selection.values = Object.keys(regions); // Updates the region
+    jsonQuery.query[4].selection.values = [document.getElementById('year').value]; // Updates the year from the select element
+
     const url = "https://statfin.stat.fi:443/PxWeb/api/v1/en/StatFin/tyokay/statfin_tyokay_pxt_115b.px";
     const res = await fetch(url, {
         method: "POST",
@@ -175,41 +167,42 @@ const getData = async () => {
     return data;
 };
 
-const populateData = async () => {
+const populateData = async () => { // Populates the data array with the fetched data
     const data = await getData();
-    const sortingCriteria = data.dimension.Alue.category.index;
 
+    const sortingCriteria = data.dimension.Alue.category.index; // Shows which region is in which index
     let dataValues = data.value;
 
     dataValues.forEach((value, index) => {
         const region = Object.keys(sortingCriteria).find(key => sortingCriteria[key] === index);
-        dataArray[region] = value;
+        regionsData[region] = value;
     });
         
-    fetchData();
-    return dataArray;
+    fetchGeoJsonData(); // Calls the fetchGeoJsonData since we now have the necessary data
 };
 
-const getFeature = (features, layer) => {
+const getFeature = (features, layer) => { // Gets the feature and layer
     const municipality = features.properties.kunta;
 
+    // To show the name of the municipality when hovering over it
     layer.bindTooltip(features.properties.name);
 
-    // get the name in the checked radio button
+    // Gets the name in the checked radio button
     const radioDiv = document.getElementById('radioDiv');
     const checkedRadio = radioDiv.querySelector('input[type="radio"]:checked');
 
+    // To show the data of the municipality when clicking on it
     layer.bindPopup(
         `<ul>
             <li>Name: ${features.properties.name}</li>
-            <li>${checkedRadio.textContent}: ${dataArray[`KU${municipality}`]}</li>
-            <li><button onclick="window.location.href='
-                /Chart/index.html?KU${municipality}?${checkedRadio.id}'">Chart description</button></li>
+            <li>${checkedRadio.textContent}: ${regionsData[`KU${municipality}`]}</li>
+            <li><button onclick="window.location.href='../../Employment/Chart/index.html?KU${municipality}?${checkedRadio.id}'">Chart description</button></li>
         </ul>`
     );
+    // The button above will redirect to the chart page with extra information in the URL
 };
 
-const getStyle = (features) => {
+const getStyle = (features) => { // Returns the style based on the data
     return {
         fillColor: `hsl(${getHue(features)}, 75%, 50%)`,
         color: `hsl(${getHue(features)}, 75%, 50%)`,
@@ -217,8 +210,8 @@ const getStyle = (features) => {
     };
 };
 
-const getHue = (features) => {
-    const data = dataArray[`KU${features.properties.kunta}`];
+const getHue = (features) => { // Returns the hue based on the data
+    const data = regionsData[`KU${features.properties.kunta}`];
     if (data > 100000) return 120;
     if (data > 50000) return 100;
     if (data > 10000) return 80;
@@ -228,20 +221,20 @@ const getHue = (features) => {
     if (data <= 100) return 0;
 };
 
-populateData();
-
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => { // When the DOM is loaded
+    /* NECESSARY ELEMENTS */
     let goButton = document.getElementById('go');
     let yearSelect = document.getElementById('year');
-    let dropArea = document.getElementById('dropArea');
-    let container = document.querySelector('.dragDropContainer');
-    let cards = document.querySelectorAll('.card');
-    let cardContainer = document.querySelector('.cardContainer');
+    let container = document.querySelector('.dragDropContainer'); // Contains all the drag-and-drop elements and divs
+    let dropArea = document.getElementById('dropArea'); // Where the cards are dropped
+    let cardContainer = document.querySelector('.cardContainer'); // Where the cards are dragged from
+    let cards = document.querySelectorAll('.card'); // The cards that can be dragged
     let top = document.getElementById('top');
     let bottom = document.getElementById('bottom');
+    let download = document.getElementById('downloadMap');
 
 
-    document.getElementById("downloadMap").addEventListener("click", () => {
+    download.addEventListener("click", () => { // Downloads the map as a PNG
         html2canvas(document.getElementById("map")).then(canvas => {
             const link = document.createElement("a");
             link.href = canvas.toDataURL("image/png");
@@ -250,55 +243,56 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    goButton.addEventListener('click', () => {
-        window.location.href = '/';
+    goButton.addEventListener('click', () => { // Redirects to the home page
+        window.location.href = '/home.html';
     });
 
     let years = [2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010];
-    years.forEach(year => {
+    years.forEach(year => { // Populates the select element with the years
         let option = document.createElement('option');
         option.value = year;
         option.text = year;
         yearSelect.add(option);
     });
 
-    yearSelect.addEventListener('change', () => {
+    yearSelect.addEventListener('change', () => { // Updates the year when the select element is changed
         populateData();
     });
 
+    /* DRAG AND DROP FUNCTIONALITY */
     cards.forEach(card => {
-        card.addEventListener('dragstart', () => {
-            card.classList.add('dragging');
+        card.addEventListener('dragstart', () => { // When the card is dragged
+            card.classList.add('dragging'); // Adds the card to a class called 'dragging'
         });
     
-        card.addEventListener('dragend', () => {
-            card.classList.remove('dragging');
+        card.addEventListener('dragend', () => { // When the card is dropped
+            card.classList.remove('dragging'); // Removes the card from the class 'dragging'
         });
     });
     
-    dropArea.addEventListener('dragover', (e) => {
+    dropArea.addEventListener('dragover', (e) => { // When the card is dragged over the drop area
         e.preventDefault();
     });
     
-    dropArea.addEventListener('drop', (e) => {
+    dropArea.addEventListener('drop', (e) => { // When the card is dropped in the drop area
         e.preventDefault();
         const card = document.querySelector('.dragging');
-        if (card) {
-            dropArea.appendChild(card);
-            card.classList.remove('dragging');
+        if (card) { // If there is a card being dragged
+            dropArea.appendChild(card); // Append the card to the drop area
+            card.classList.remove('dragging'); // Remove the card from the class 'dragging'
         }
         getRadioButtons();
     });
 
-    const getRadioButtons = () => {
+    const getRadioButtons = () => { //Creates radio buttons for the cards in the drop area
         const radioDiv = document.getElementById('radioDiv');
         radioDiv.innerHTML = ''; // Clear any existing content
 
         const p = document.createElement('p');
             p.textContent = 'Which to show?';
-        radioDiv.appendChild(p);
+            radioDiv.appendChild(p);
     
-        let cardsInDropArea = dropArea.querySelectorAll('.card');
+        let cardsInDropArea = dropArea.querySelectorAll('.card'); // Get all the cards in the drop area
         cardsInDropArea.forEach((card, index) => {
             const radio = document.createElement('input');
             radio.type = 'radio';
@@ -312,7 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
             radio.textContent = cardName;
             label.htmlFor = radio.id;
 
-            if (index === 0) {
+            if (index === 0) { // If it's the first card, check it by default, so there is always a checked radio button
                 radio.checked = true;
             }
 
@@ -323,7 +317,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
             radioDiv.appendChild(radioContainer);
         });
-        radioDiv.querySelectorAll('input[type="radio"]').forEach(radio => {
+
+        radioDiv.querySelectorAll('input[type="radio"]').forEach(radio => { // When a radio button is changed
             radio.addEventListener('change', (event) => {
                 jsonQuery.query[1].selection.values = [event.target.id];
                 populateData();
@@ -335,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
     });
 
-    cardContainer.addEventListener('drop', (e) => {
+    cardContainer.addEventListener('drop', (e) => { // To allow returning the card to the card container
         e.preventDefault();
         const card = document.querySelector('.dragging');
         if (card) {
@@ -344,13 +339,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    top.addEventListener('click', () => {
+    top.addEventListener('click', () => { // Scrolls to the top of the page
         document.getElementById('topDiv').scrollIntoView({ behavior: 'smooth' });
     });
 
-    bottom.addEventListener('click', () => {
+    bottom.addEventListener('click', () => { // Scrolls to the bottom of the page
         container.scrollIntoView({ behavior: 'smooth' });
     });
 
     getRadioButtons();
+    populateData();
 });
