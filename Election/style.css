@@ -1,10 +1,12 @@
+/* General styles */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
+/* Banner styles */
 .banner {
     width: 100%;
     height: 100vh;
@@ -13,11 +15,13 @@
     background-position: center;    
 }
 
+/* Logo styles */
 .logo {
     width: 80px;
     cursor: pointer;
 }
 
+/* Navbar styles */
 .navbar {
     width: 85%;
     margin: auto;
@@ -49,6 +53,7 @@
     text-transform: uppercase;
 }
 
+/* Arrow down icon styles */
 #arrowDown {
     position: relative;
     left: 45%;
@@ -57,6 +62,7 @@
     margin-top: 5%;
 }
 
+/* Content styles */
 .content h1 {
     font-size: 50px;
     color: rgb(55, 231, 11);
@@ -71,13 +77,6 @@
     margin-top: 20px;
 }
 
-/* Reset some basic styles */
-body, h1, p {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 /* Style the container to center content and add padding */
 .container {
     max-width: 800px;
@@ -88,10 +87,12 @@ body, h1, p {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+
 /* Style for the holder1 and holder2 sections */
 .holder1, .holder2 {
     margin-bottom: 20px;
 }
+
 
 /* Style for dropdowns and input fields */
 .dropdown, .chooseYears, .chooseParty {
@@ -123,6 +124,7 @@ input[type="text"]:focus, select:focus {
     outline: none;
 }
 
+
 /* Style the dropdown list */
 .dropdown-list {
     display: none;
@@ -150,6 +152,7 @@ input[type="text"]:focus, select:focus {
     background-color: #cce8cc;
 }
 
+
 /* Style the button */
 button {
     margin-left: 10px;
@@ -167,21 +170,23 @@ button:hover {
     background-color: #74c28f;
 }
 
+
 /* Style the chart container */
 #chart {
     margin: 20px 0;
 }
 
+
 /* MEDIA QUERIES */
 
 /* For mobile phones: */
 @media only screen and (max-width: 600px) {
-    /*Select options limited to the width*/
+    /* Select options limited to the width */
     select {
         width: 50%;
         font-size: 70%;
     }
-    /*legend of the frappe chart reduced*/
+    /* Legend of the frappe chart reduced */
     #chart {
         overflow-x: scroll;
         padding-bottom: 10px;

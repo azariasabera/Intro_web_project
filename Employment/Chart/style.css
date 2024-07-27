@@ -1,23 +1,27 @@
+/* General styles */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
+/* Banner styles */
 .banner {
     width: 100%;
     height: 100vh;
     background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), url('');
     background-size: cover;
-    background-position: center;    
+    background-position: center;
 }
 
+/* Logo styles */
 .logo {
     width: 80px;
     cursor: pointer;
 }
 
+/* Navbar styles */
 .navbar {
     width: 85%;
     margin: auto;
@@ -39,7 +43,7 @@
     list-style: none;
     display: inline-block;
     margin: 0 20px;
-}   
+}
 
 .navbar ul li a {
     color: white;
@@ -49,6 +53,7 @@
     text-transform: uppercase;
 }
 
+/* Arrow down icon styles */
 #arrowDown {
     position: relative;
     left: 45%;
@@ -57,6 +62,7 @@
     margin-top: 5%;
 }
 
+/* Content styles */
 .content h1 {
     font-size: 50px;
     color: rgb(55, 231, 11);
@@ -69,12 +75,6 @@
     color: rgb(252, 252, 252);
     text-align: center;
     margin-top: 20px;
-}
-/* Basic reset for margin and padding */
-body, h1, p {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
 }
 
 /* Container for dropdown and form elements */
@@ -189,20 +189,21 @@ button:hover {
     margin-left: 20px;
 }
 
+/* Holder styles */
 #holder {
     margin-left: 20px;
 }
 
-
 /* MEDIA QUERIES */
 
+/* For mobile phones and smaller screens */
 @media only screen and (max-width: 1000px) {
-    /*Select options limited to the width*/
+    /* Select options limited to the width */
     select {
         width: 30%;
         font-size: 70%;
     }
-    /*legend of the frappe chart reduced*/
+    /* Legend of the frappe chart reduced */
     #chart {
         overflow-x: scroll;
         padding-bottom: 10px;
