@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => { // When the DOM is loaded
     let yearSelect = document.getElementById('year');
     let container = document.querySelector('.dragDropContainer'); // Contains all the drag-and-drop elements and divs
     let dropArea = document.getElementById('dropArea'); // Where the cards are dropped
-    let cardContainer = document.querySelector('.cardContainer'); // Where the cards are dragged from
+    let dragArea = document.getElementById('dragArea'); // Where the cards are dragged from
     let cards = document.querySelectorAll('.card'); // The cards that can be dragged
     let top = document.getElementById('top');
     let bottom = document.getElementById('bottom');
@@ -327,11 +327,11 @@ document.addEventListener('DOMContentLoaded', () => { // When the DOM is loaded
         });
     };    
 
-    cardContainer.addEventListener('dragover', (e) => {
+    dragArea.addEventListener('dragover', (e) => {
         e.preventDefault();
     });
 
-    cardContainer.addEventListener('drop', (e) => { // To allow returning the card to the card container
+    dragArea.addEventListener('drop', (e) => { // To allow returning the card to the card container
         e.preventDefault();
         if (dropArea.querySelectorAll('.card').length === 1) {
             getRadioButtons();
@@ -339,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => { // When the DOM is loaded
         } 
         const card = document.querySelector('.dragging');
         if (card) {
-            cardContainer.appendChild(card);
+            dragArea.appendChild(card);
             card.classList.remove('dragging');
         }
         getRadioButtons();
