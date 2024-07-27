@@ -203,7 +203,7 @@ const getFeature = (features, layer) => {
         `<ul>
             <li>Name: ${features.properties.name}</li>
             <li>${checkedRadio.textContent}: ${dataArray[`KU${municipality}`]}</li>
-            <li><button onclick="window.location.href='/chart.html?KU${municipality}'">Chart description</button></li>
+            <li><button onclick="window.location.href='/chart.html?KU${municipality}?${checkedRadio.id}'">Chart description</button></li>
         </ul>`
     );
 };
@@ -238,6 +238,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let cardContainer = document.querySelector('.cardContainer');
     let top = document.getElementById('top');
     let bottom = document.getElementById('bottom');
+
+
+    document.getElementById("downloadMap").addEventListener("click", () => {
+        html2canvas(document.getElementById("map")).then(canvas => {
+            const link = document.createElement("a");
+            link.href = canvas.toDataURL("image/png");
+            link.download = "map.png";
+            link.click();
+        });
+    });
 
     goButton.addEventListener('click', () => {
         window.location.href = '/';

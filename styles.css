@@ -1,9 +1,60 @@
-#map {
-    border-radius: 20px;
-    background-color: #61dafb;
+.dropdown {
+    position: relative;
+    display: inline-block;
+    width: 200px;
+}
+.dropdown-input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+.dropdown-list {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ddd;
+    width: 100%;
+    box-sizing: border-box;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1;
+}
+.dropdown-list div {
+    padding: 8px;
+    cursor: pointer;
+}
+.dropdown-list div:hover {
+    background-color: #ddd;
+}
+.dropdown-active .dropdown-list {
+    display: block;
 }
 
-#chart {
-    border-radius: 20px;
-    background-color: #869a21;
+#selectYear {
+    width: 50%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    background-color: white;
+    text-align: left;
+}
+
+#selectionDiv {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Responsive columns */
+    gap: 5px; /* Adjust gap between items */
+    padding: 0; /* Remove padding on the container */
+    margin: 0; /* Remove margin on the container */
+}
+
+/* Container for each checkbox item */
+.checkbox-item {
+    display: flex;
+    align-items: center;
+}
+
+/* Styling for checkboxes and labels */
+.checkbox-item input[type="checkbox"] {
+    margin-right: 5px;
 }

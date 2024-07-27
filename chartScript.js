@@ -1,11 +1,25 @@
-
+let checkedBoxes = ['11'];
+let checkedAge = [];
+let checkedSex = [];
 document.addEventListener("DOMContentLoaded", async () => {
     const dropdownInput = document.getElementById("dropdownInput");
     const dropdownList = document.getElementById("dropdownList");
     const dropdown = document.querySelector(".dropdown");
-    const selectData = document.getElementById("selectData");
     const selectGraph = document.getElementById("selectGraph");
     const toMap = document.getElementById("toMap");
+    const checkBoxes = document.querySelectorAll(".checkBox");
+    const ageCorrelation = document.getElementById("ageCorrelations");
+    const sexCorrelation = document.getElementById("sexCorrelation");
+
+    document.getElementById("downloadChart").addEventListener("click", () => {
+        html2canvas(document.getElementById("chart")).then(canvas => {
+            const link = document.createElement("a");
+            link.href = canvas.toDataURL("image/png");
+            link.download = "chart.png";
+            link.click();
+        });
+    });
+    
 
     const fetchRegion = async () => {
         const url = "regions.json"
@@ -15,11 +29,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         return data
     };
 
-    const getUrlParameter = (name) => {
-        // I am sending something like this: /index.html?region=KU020
-        // and I want to get the value of region
+    const getUrlParameter = () => {
         const queryString = window.location.search;
-        return queryString.split('?')[1]
+        const region = queryString.split('?')[1];
+        const id = queryString.split('?')[2];
+        if (region && id) {
+            return [region, id];
+        }
+        return null;
     };
 
 
@@ -38,19 +55,35 @@ document.addEventListener("DOMContentLoaded", async () => {
                 dropdown.classList.remove('dropdown-active');
 
                 jsonQuery.query[0].selection.values = [key];
-                buildChart(selectGraph.value, selectData.value);
+                buildChart(selectGraph.value);
             });
             dropdownList.appendChild(option)
         });
 
-        const regionParam = getUrlParameter('region');
+        const regionParam = getUrlParameter();
         console.log(regionParam)
         if (regionParam) {
-            const regionName = optionValues[regionParam];
+            let id = '';
+            checkBoxes.forEach(checkbox => {
+                if (regionParam[1] === checkbox.value){
+                    checkbox.checked = true;
+                    id = checkbox.value;
+                    checkedBoxes = [];
+                    checkedBoxes.push(id);
+                    console.log('HEYY the id is',id)
+                }
+                else
+                    checkbox.checked = false;
+            });
+            const regionName = optionValues[regionParam[0]];
             if (regionName) {
                 dropdownInput.value = regionName;
-                jsonQuery.query[0].selection.values = [regionParam];
-                buildChart(selectGraph.value, selectData.value);
+                jsonQuery.query[0].selection.values = [regionParam[0]];
+                jsonQuery.query[1].selection.values = [id];
+                //console.log('jsonQueryyy', jsonQuery)
+                buildChart(selectGraph.value);
+                // remove the query parameters from the URL
+                window.history.replaceState({}, document.title, "/chart.html");
             }
             else console.log('Municipality not found')
         }
@@ -81,24 +114,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         }, 200);
     });
 
-    // if they select one call buildChart, selectdata is a select
-    selectData.addEventListener("change", () => {
-        if (selectData.value === "employment") {
-            buildChart(selectGraph.value, "employment");
-        }
-        else if (selectData.value === "unemployment") {
-            buildChart(selectGraph.value, "unemployment");
-        }
-        else {
-            buildChart(selectGraph.value, "both");
-        }});
-
     selectGraph.addEventListener("change", () => {
         if (selectGraph.value === "line") {
-            buildChart("line", selectData.value);
+            buildChart("line");
         }
         else {
-            buildChart("bar", selectData.value);
+            buildChart("bar");
         }
     });  
     
@@ -106,12 +127,50 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.location.href = "map.html";
     });
 
+    checkBoxes.forEach(checkbox => {
+        checkbox.addEventListener("change", () => {
+            // collect all the checked checkboxes, and return array of their values
+            const checked = Array.from(checkBoxes).filter(checkbox => checkbox.checked);
+            const values = checked.map(checkbox => checkbox.value);
+            if (values.length !== 0) {
+                jsonQuery.query[1].selection.values = values;
+                console.log(jsonQuery)
+                buildChart(selectGraph.value);
+                checkedBoxes = [];
+                checkedBoxes = values;
+                console.log('YAYY UM CHECKED')
+            }
+        });
+    });
+
+    /*ageCorrelation.addEventListener("change", () => {
+        if (ageCorrelation.checked) {
+            // create 3 checkboxes for age groups
+            const ageGroups = ['0-17', '18-64', '65-'];
+            for (let i = 0; i < 3; i++) {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = i;
+                checkbox.classList.add('check-box');
+                checkbox.addEventListener('change', () => {
+                    const checked = Array.from(checkedAge).filter(checkbox => checkbox.checked);
+                    const values = checked.map(checkbox => checkbox.value);
+                    if (values.length !== 0) {
+                        jsonQuery.query[3].selection.values = values;
+                        console.log(jsonQuery)
+                        buildChart(selectGraph.value);
+                    }
+
+                });
+                checkedAge.push(checkbox);
+                const label = document.createElement('label');
+                label.textContent = ageGroups[i];
+    }}});*/
+
     dropdownInput.addEventListener("input", filterOptions);
     populateDropdown();
     console.log(dropdownInput.value)
 });
-
-
 
 const jsonQuery = 
 {
@@ -120,20 +179,14 @@ const jsonQuery =
         "code": "Alue",
         "selection": {
           "filter": "item",
-          "values": [
-            "SSS",
-            "KU020"
-          ]
+          "values": ["SSS"]
         }
       },
       {
         "code": "Pääasiallinen toiminta",
         "selection": {
           "filter": "item",
-          "values": [
-            "11",
-            "12"
-          ]
+          "values": ["11"]
         }
       },
       {
@@ -149,9 +202,7 @@ const jsonQuery =
         "code": "Ikä",
         "selection": {
           "filter": "item",
-          "values": [
-            "SSS", 
-          ]
+          "values": ["SSS"]
         }
       },
       {
@@ -193,43 +244,33 @@ const getData = async () => {
     }
     const data = await res.json()
     console.log('data', data)
-    console.log(JSON.stringify(data.dimension.Alue.category.label))
+    //console.log(JSON.stringify(data.dimension.Alue.category.label))
 
     return data
 }
 
-const buildChart = async (type="line", which="both") => {
-    const data = await getData()
+const buildChart = async (type="line") => {
+    const data = await getData();
 
-    // assign employment with the data from first to the year's lenth index of the data
-    const employmentData = data.value.slice(0, data.value.length / 2);
-    console.log(employmentData)
-    const unemploymentData = data.value.slice(data.value.length / 2);
     const years = Object.values(data.dimension.Vuosi.category.label);
-    const datasets = {
-        'employment': [{
-            name: 'Employment',
-            values: employmentData
-        }],
-        'unemployment': [{
-            name: 'Unemployment',
-            values: unemploymentData
-        }],
-        'both': [{
-            name: 'Employment',
-            values: employmentData
-        },
-        {
-            name: 'Unemployment',
-            values: unemploymentData
-        }]
-    }
-    
-    console.log('first', datasets[which])
+    const sortingCriteria = data.dimension['Pääasiallinen toiminta'].category.index;
+    const separationPoint = data.value.length / checkedBoxes.length;
+
+    let datasets = [];
+    //console.log('important', checkedBoxes, sortingCriteria, separationPoint)
+
+    checkedBoxes.forEach((value) => {
+        const order = sortingCriteria[value];
+        datasets.push({
+            name: document.querySelector(`label[for="${value}"]`).textContent,
+            values: data.value.slice(separationPoint * order, separationPoint * (order + 1))
+        })
+    });
+    //console.log(datasets)
     
     const chartData = {
         labels: years,
-        datasets: datasets[which]
+        datasets: datasets
     }
 
     const chart = new frappe.Chart("#chart", {
@@ -237,9 +278,8 @@ const buildChart = async (type="line", which="both") => {
         data: chartData,
         type: type,
         height: 450,
-        colors: ["#63d0ff", "#363636"]
+        //colors: ["#63d0ff", "#363636"]
     })
 }
 
 buildChart()
-//getData()
