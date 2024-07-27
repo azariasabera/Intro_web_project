@@ -50,7 +50,6 @@ const jsonQuery =
     }
 
 const getData = async () => {
-    console.log('jsonQuery', jsonQuery)
     const url = "https://statfin.stat.fi:443/PxWeb/api/v1/en/StatFin/kvaa/statfin_kvaa_pxt_12g3.px"
     const res = await fetch(url, {
         method: "POST",
@@ -112,6 +111,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const yearRangeDiv = document.getElementById("yearRangeDiv");
     const singleYear = document.getElementById("singleYear");
     const download = document.getElementById("downloadChart");
+    const arrowDown = document.getElementById("arrowDown");
 
     download.addEventListener("click", () => { // Downloads the chart as a PNG image
         html2canvas(document.getElementById("chart")).then(canvas => {
@@ -125,26 +125,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     yearsArray = [1976, 1980, 1984, 1988, 1992, 1996, 2000, 2004, 2008, 2012, 2017, 2021];
 
-    const fetchMunicipality = async () => {
+    const fetchMunicipality = async () => { // Fetches the municipalities from a JSON file
         const url = "../../Data/municipalities.json"; 
         const res = await fetch(url)
         const data = await res.json()   
         return data
     };
 
-    const populateDropdown = async () => {
+    const populateDropdown = async () => { // Populates the dropdown with the regions
 
-        dropdownList.innerHTML = '';
+        dropdownList.innerHTML = ''; // Clears the dropdown list first
 
         const optionValues = await fetchMunicipality();
         Object.entries(optionValues).forEach(([key, value]) => {
             const option = document.createElement('div');
             option.textContent = value;
-            option.dataset.value = key;
+            option.dataset.value = key; // Sets the dataset value to the key
 
-            option.addEventListener('click', () => {
+            option.addEventListener('click', () => { // When an option is clicked
                 dropdownInput.value = value;
-                dropdown.classList.remove('dropdown-active');
+                dropdown.classList.remove('dropdown-active'); // Hides the dropdown
 
                 if (dropdownInput.value === "single")
                     singleYearDiv.style.display = "block";
@@ -159,13 +159,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    function filterOptions() {
+    function filterOptions() { // Filters the options in the dropdown
         const filterText = dropdownInput.value.toLowerCase();
 
         const options = dropdownList.children; // these are divs
         Object.values(options).forEach(option => {
             const text = option.textContent.toLocaleLowerCase();
-            if (text.includes(filterText))
+            if (text.includes(filterText)) // If the text includes the filter text
                 option.style.display = ''; // display
             else
                 option.style.display = 'none'; // don't display
@@ -210,7 +210,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             jsonQuery.query[2].selection.values = [selectParty.value];
         }
 
-        if (showSingleYear.checked) 
+        if (showSingleYear.checked) // Only show the bar for showing single year
             buildChart("bar");
         else
             buildChart();
@@ -218,19 +218,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     showSingleYear.addEventListener("change", () => {
         if(showSingleYear.checked) {
-            console.log('checked')
             singleYearDiv.style.display = "block";
             yearRangeDiv.style.display = "none";
             showSingleYear.textContent = "Hide year range";
             jsonQuery.query[0].selection.values = [parseInt(singleYear.value)];
             buildChart("bar");  
         } else {
-            console.log('unchecked')
             yearRangeDiv.style.display = "block";
             singleYearDiv.style.display = "none";
             jsonQuery.query[0].selection.values = [1976, 1980, 1984, 1988, 1992, 1996, 2000, 2004, 2008, 2012, 2017, 2021];
             buildChart();
         }
+    });
+
+    arrowDown.addEventListener("click", () => {
+        dropdown.scrollIntoView({behavior: "smooth"});
     });
 
     dropdownInput.addEventListener("input", filterOptions);

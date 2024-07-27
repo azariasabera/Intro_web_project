@@ -1,7 +1,79 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family:'Courier New', Courier, monospace;
+}
+
+.banner {
+    width: 100%;
+    height: 100vh;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), url('Images/homeImage.jpg');
+    background-size: cover;
+    background-position: center;    
+}
+
+.logo {
+    width: 80px;
+    cursor: pointer;
+}
+
+.navbar {
+    width: 85%;
+    margin: auto;
+    padding: 35px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0 15px;
+}
+
+.navbar ul li {
+    list-style: none;
+    display: inline-block;
+    margin: 0 20px;
+}   
+
+.navbar ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.content h1 {
+    font-size: 50px;
+    color: rgb(55, 231, 11);
+    text-align: center;
+    margin-top: 100px;
+}
+
+.content p {
+    font-size: 20px;
+    color: rgb(252, 252, 252);
+    text-align: center;
+    margin-top: 20px;
+}
 .dropdown {
     position: relative;
-    display: inline-block;
-    width: 200px;
+    display: flex;
+    width: 30%;
+    gap: 10px;
+}
+
+.dropdown label {
+    color: rgb(59, 216, 20);
+    font-size: 15px;
+    white-space: nowrap;
+    margin-top: 10px;
 }
 .dropdown-input {
     width: 100%;
@@ -38,4 +110,29 @@
     cursor: pointer;
     background-color: white;
     text-align: left;
+}
+
+#arrowDown {
+    margin-top: 50px;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    cursor: pointer;
+    width: 80px;
+}
+
+label {
+    color: rgb(59, 216, 20);
+    font-size: 15px;
+}
+
+.holder1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.holder1 div {
+    margin: 0 20px;
 }
