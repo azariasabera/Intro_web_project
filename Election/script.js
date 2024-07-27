@@ -49,7 +49,7 @@ const jsonQuery =
 
     }
 
-const getData = async () => {
+const getData = async () => { // Fetches the data from the API
     const url = "https://statfin.stat.fi:443/PxWeb/api/v1/en/StatFin/kvaa/statfin_kvaa_pxt_12g3.px"
     const res = await fetch(url, {
         method: "POST",
@@ -63,13 +63,13 @@ const getData = async () => {
     return data
 }
 
-const buildChart = async (type="line") => {
+const buildChart = async (type="line") => { // Builds the chart with the data
     const data = await getData()
 
     const dataValues = data.value;
     const years = Object.values(data.dimension.Vuosi.category.label);
-    const sortingCriteria = data.dimension.Puolue.category.index;
-    const partiesWithNames = data.dimension.Puolue.category.label;
+    const sortingCriteria = data.dimension.Puolue.category.index; // Sorting criteria for the parties
+    const partiesWithNames = data.dimension.Puolue.category.label;  // Party names
     let parties = Object.values(partiesWithNames);
 
     parties.forEach((party, index) => {
@@ -96,7 +96,7 @@ const buildChart = async (type="line") => {
         data: chartData,
         type: type,
         height: 450,
-        colors: ["#63d0ff", "#363636"]
+        colors: ["red", "blue", "green", "black", "purple", "orange", "#FF00FF", "#00FF00"],
     })
 }
 

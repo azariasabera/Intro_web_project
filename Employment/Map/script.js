@@ -223,7 +223,6 @@ const getHue = (features) => { // Returns the hue based on the data
 
 document.addEventListener('DOMContentLoaded', () => { // When the DOM is loaded
     /* NECESSARY ELEMENTS */
-    let goButton = document.getElementById('go');
     let yearSelect = document.getElementById('year');
     let container = document.querySelector('.dragDropContainer'); // Contains all the drag-and-drop elements and divs
     let dropArea = document.getElementById('dropArea'); // Where the cards are dropped
@@ -232,6 +231,7 @@ document.addEventListener('DOMContentLoaded', () => { // When the DOM is loaded
     let top = document.getElementById('top');
     let bottom = document.getElementById('bottom');
     let download = document.getElementById('downloadMap');
+    let arrowDown = document.getElementById('arrowDown');
 
 
     download.addEventListener("click", () => { // Downloads the map as a PNG
@@ -241,10 +241,6 @@ document.addEventListener('DOMContentLoaded', () => { // When the DOM is loaded
             link.download = "map.png";
             link.click();
         });
-    });
-
-    goButton.addEventListener('click', () => { // Redirects to the home page
-        window.location.href = '/home.html';
     });
 
     let years = [2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010];
@@ -286,13 +282,18 @@ document.addEventListener('DOMContentLoaded', () => { // When the DOM is loaded
 
     const getRadioButtons = () => { //Creates radio buttons for the cards in the drop area
         const radioDiv = document.getElementById('radioDiv');
-        radioDiv.innerHTML = ''; // Clear any existing content
-
-        const p = document.createElement('p');
-            p.textContent = 'Which to show?';
-            radioDiv.appendChild(p);
     
         let cardsInDropArea = dropArea.querySelectorAll('.card'); // Get all the cards in the drop area
+
+        if (cardsInDropArea.length === 1) { // If there is only one card in the drop area
+            jsonQuery.query[1].selection.values = [cardsInDropArea[0].id];
+            populateData();
+        }
+        radioDiv.innerHTML = ''; // Clear any existing content
+        const p = document.createElement('p');
+        p.textContent = 'Which to show?';
+        radioDiv.appendChild(p);
+
         cardsInDropArea.forEach((card, index) => {
             const radio = document.createElement('input');
             radio.type = 'radio';
@@ -332,11 +333,16 @@ document.addEventListener('DOMContentLoaded', () => { // When the DOM is loaded
 
     cardContainer.addEventListener('drop', (e) => { // To allow returning the card to the card container
         e.preventDefault();
+        if (dropArea.querySelectorAll('.card').length === 1) {
+            getRadioButtons();
+            return;
+        } 
         const card = document.querySelector('.dragging');
         if (card) {
             cardContainer.appendChild(card);
             card.classList.remove('dragging');
         }
+        getRadioButtons();
     });
 
     top.addEventListener('click', () => { // Scrolls to the top of the page
@@ -345,6 +351,10 @@ document.addEventListener('DOMContentLoaded', () => { // When the DOM is loaded
 
     bottom.addEventListener('click', () => { // Scrolls to the bottom of the page
         container.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    arrowDown.addEventListener("click", () => {
+        document.getElementById('topDiv').scrollIntoView({behavior: "smooth"});
     });
 
     getRadioButtons();

@@ -10,6 +10,26 @@
     <script src="script.js"></script>
 </head>
 <body>
+    <div class="banner">
+        <div class="navbar">
+            <img src="../../Images/chart.svg" class="logo">
+            <ul>
+                <li><a href="../../home.html">Home</a></li>
+                <li><a href="../../Employment/Map/index.html">Map On Employment</a></li>
+                <li><a href="../../Election/index.html">Election Results</a></li>
+            </ul>
+        </div> 
+
+        <div class="content">
+            <h1>Chart on Employment</h1>
+            <p>The chart shows the employment, unemployment and more data for different regions in Finland</p>
+            <p> Click below to go to the chart</p>
+        </div>
+        <div>
+            <img src="../../Images/arrowDown.svg" id="arrowDown">
+        </div>
+    </div>
+
     <!-- For filtering municipalities -->
     <div class="dropdown">
         <label for="dropdownInput">Choose region</label>
@@ -17,7 +37,7 @@
         <div class="dropdown-list" id="dropdownList"></div>
     </div>
 
-    <div>
+    <div  id="holder">
         <label for="selectData">Choose what to display</label>
         <div id="selectionDiv">
             <div class="checkbox-item">
@@ -59,23 +79,9 @@
                 <option value="line">Line</option>
                 <option value="bar">Bar</option>
             </select>
-
         </div>
 
-        <!--<div id="correlationDiv">
-            <label for="ageCorrelation">Show age correlation</label>
-            <input type="checkbox" id="ageCorrelation" name="ageCorrelation">
-            <label for="sexCorrelation">Show sex correlation</label>
-            <input type="checkbox" id="sexCorrelation" name="sexCorrelation">
-            <div id="correlationDiv2">
-                <label for="correlation2">Correlation</label>
-                <input type="checkbox" id="correlation2" name="correlation2">
-            </div>
-        </div>-->
-
     </div>
-
-    <button type="submit" id="toMap">Exited? Map for the data</button>
 
     <div id="chart"></div>
     <button id="downloadChart">Download Chart as PNG</button>

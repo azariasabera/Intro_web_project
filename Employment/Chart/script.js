@@ -112,11 +112,9 @@ document.addEventListener("DOMContentLoaded", async () => { // When the page is 
     const dropdownInput = document.getElementById("dropdownInput"); // The input field in the dropdown
     const dropdownList = document.getElementById("dropdownList"); // The list of regions in the dropdown
     const selectGraph = document.getElementById("selectGraph");
-    const toMap = document.getElementById("toMap");
     const checkBoxes = document.querySelectorAll(".checkBox");
     const download = document.getElementById("downloadChart");
-    //const ageCorrelation = document.getElementById("ageCorrelations");
-    //const sexCorrelation = document.getElementById("sexCorrelation");
+    const arrowDown = document.getElementById("arrowDown");
 
     download.addEventListener("click", () => { // Downloads the chart as a PNG image
         html2canvas(document.getElementById("chart")).then(canvas => {
@@ -209,7 +207,8 @@ document.addEventListener("DOMContentLoaded", async () => { // When the page is 
             jsonQuery.query[1].selection.values = [id];
             buildChart(selectGraph.value);
             // removes the query parameters from the URL
-            window.history.replaceState({}, document.title, "/Chart/index.html");
+            window.history.replaceState({}, document.title, "../../Employment/Chart/index.html");
+            document.getElementById('chart').scrollIntoView({behavior: "smooth"});
         }
         else console.log('Municipality not found')
     }
@@ -225,10 +224,6 @@ document.addEventListener("DOMContentLoaded", async () => { // When the page is 
         }
     });  
     
-    toMap.addEventListener("click", () => {
-        window.location.href = "../../Employment/Map/index.html";
-    });
-
     checkBoxes.forEach(checkbox => {
         checkbox.addEventListener("change", () => {
             // collect all the checked checkboxes, and return array of their values
@@ -243,29 +238,9 @@ document.addEventListener("DOMContentLoaded", async () => { // When the page is 
         });
     });
 
-    /*ageCorrelation.addEventListener("change", () => {
-        if (ageCorrelation.checked) {
-            // create 3 checkboxes for age groups
-            const ageGroups = ['0-17', '18-64', '65-'];
-            for (let i = 0; i < 3; i++) {
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.value = i;
-                checkbox.classList.add('check-box');
-                checkbox.addEventListener('change', () => {
-                    const checked = Array.from(checkedAge).filter(checkbox => checkbox.checked);
-                    const values = checked.map(checkbox => checkbox.value);
-                    if (values.length !== 0) {
-                        jsonQuery.query[3].selection.values = values;
-                        console.log(jsonQuery)
-                        buildChart(selectGraph.value);
-                    }
-
-                });
-                checkedAge.push(checkbox);
-                const label = document.createElement('label');
-                label.textContent = ageGroups[i];
-    }}});*/
+    arrowDown.addEventListener("click", () => {
+        dropdown.scrollIntoView({behavior: "smooth"});
+    });
 
     dropdownInput.addEventListener("input", filterOptions);
     populateDropdown();

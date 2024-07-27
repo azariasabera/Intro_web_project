@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family:'Courier New', Courier, monospace;
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
 }
 
 .banner {
@@ -49,11 +49,19 @@
     text-transform: uppercase;
 }
 
+#arrowDown {
+    position: relative;
+    left: 45%;
+    right: 50%;
+    width: 10%;
+    margin-top: 5%;
+}
+
 .content h1 {
     font-size: 50px;
     color: rgb(55, 231, 11);
     text-align: center;
-    margin-top: 100px;
+    margin-top: 0px;
 }
 
 .content p {
@@ -62,77 +70,120 @@
     text-align: center;
     margin-top: 20px;
 }
-.dropdown {
-    position: relative;
-    display: flex;
-    width: 30%;
-    gap: 10px;
-}
 
-.dropdown label {
-    color: rgb(59, 216, 20);
-    font-size: 15px;
-    white-space: nowrap;
-    margin-top: 10px;
-}
-.dropdown-input {
-    width: 100%;
-    padding: 8px;
+/* Reset some basic styles */
+body, h1, p {
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
 }
+
+/* Style the container to center content and add padding */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Style for the holder1 and holder2 sections */
+.holder1, .holder2 {
+    margin-bottom: 20px;
+}
+
+/* Style for dropdowns and input fields */
+.dropdown, .chooseYears, .chooseParty {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+input[type="text"], select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+input[type="text"]:focus, select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Style the dropdown list */
 .dropdown-list {
     display: none;
     position: absolute;
-    background-color: white;
-    border: 1px solid #ddd;
-    width: 100%;
-    box-sizing: border-box;
+    width: calc(100% - 2px);
     max-height: 150px;
     overflow-y: auto;
-    z-index: 1;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
 }
-.dropdown-list div {
-    padding: 8px;
-    cursor: pointer;
-}
-.dropdown-list div:hover {
-    background-color: #ddd;
-}
+
 .dropdown-active .dropdown-list {
     display: block;
 }
 
-#selectYear {
-    width: 50%;
-    padding: 8px;
-    box-sizing: border-box;
-    border: 1px solid #ddd;
+.dropdown-list div {
+    padding: 10px;
     cursor: pointer;
-    background-color: white;
-    text-align: left;
 }
 
-#arrowDown {
-    margin-top: 50px;
-    position: relative;
-    top: 50%;
-    left: 50%;
+.dropdown-list div:hover {
+    background-color: #cce8cc;
+}
+
+/* Style the button */
+button {
+    margin-left: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 10px;
     cursor: pointer;
-    width: 80px;
+    transition: background-color 0.3s;
 }
 
-label {
-    color: rgb(59, 216, 20);
-    font-size: 15px;
+button:hover {
+    background-color: #74c28f;
 }
 
-.holder1 {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
+/* Style the chart container */
+#chart {
+    margin: 20px 0;
 }
 
-.holder1 div {
-    margin: 0 20px;
+/* MEDIA QUERIES */
+
+/* For mobile phones: */
+@media only screen and (max-width: 600px) {
+    /*Select options limited to the width*/
+    select {
+        width: 50%;
+        font-size: 70%;
+    }
+    /*legend of the frappe chart reduced*/
+    #chart {
+        overflow-x: scroll;
+        padding-bottom: 10px;
+    }
 }
